@@ -48,7 +48,8 @@ void interrupt service_isr() {
 }
 
 void main(void) {
-  NVMADR = NEW_RESET_VECTOR;
+  NVMADRH = NEW_RESET_VECTOR >> 8;
+  NVMADRL = 0;  // (NEW_RESET_VECTOR & 0xff) gives constant overflow ???
   NVMCON1 = 0x80;
   NVMCON1bits.RD = 1;
   if((NVMDATH << 8 | NVMDATL) != 0x3FFF) {

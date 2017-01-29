@@ -31,13 +31,13 @@ void i2cInit() {
 }
 
 char i2cAddr; // two addresses (4 & 8) remove need for cmd byte
-char packetByteIdx; // 0 for addr byte and 1-based idx for rest
+char packetByteIdx; // 0-based idx for data bytes
 unsigned int wordAddr = APP_CODE_OFFSET;  // not wise to count on this default
 char buf[WRITE_FLASH_BLOCKSIZE*2]; // erase and data commands always 32 words
 
 void doWriteAction(char dataByte) {
   if(i2cAddr == addrI2cWriteAddr) {  // set word address command
-    if(packetByteIdx == 0) wordAddr = dataByte;
+    if(packetByteIdx == 0) wordAddr = dataByte;  // address is big-endian
     else {
       wordAddr = wordAddr << 8 | dataByte;
       if(wordAddr == 0xffff) RESET();  // magic word address resets mcu

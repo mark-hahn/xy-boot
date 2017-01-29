@@ -12,8 +12,8 @@ extern "C" {
 #define flashI2cReadAddr 8 /* i2c addr for read that triggers actual flashing 
                                and bumps word address for next erase */
   
-#define ERASE_FLASH_BLOCKSIZE 32
-#define WRITE_FLASH_BLOCKSIZE 32
+#define ERASE_FLASH_BLOCKSIZE 32 /* words */
+#define WRITE_FLASH_BLOCKSIZE 32 /* words */
 #define LAST_WORD_MASK (WRITE_FLASH_BLOCKSIZE - 1)
 
 #define APP_CODE_OFFSET 0x200
