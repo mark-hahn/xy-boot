@@ -15,7 +15,6 @@ extern "C" {
   
 #define ERASE_FLASH_BLOCKSIZE 32 /* words */
 #define WRITE_FLASH_BLOCKSIZE 32 /* words */
-#define LAST_WORD_MASK (WRITE_FLASH_BLOCKSIZE - 1)
 
 #define APP_CODE_OFFSET 0x200
 
