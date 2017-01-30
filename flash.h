@@ -14,8 +14,8 @@ extern "C" {
 
 char haveApp();
 //unsigned int flash_memory_read (unsigned int address); // not used
-void flash_memory_erase (unsigned int address);
-void flash_memory_write (unsigned int address, unsigned char *data);
+void flash_memory_erase (unsigned int wordAddress);
+void flash_memory_write (unsigned int wordAddress, unsigned char *data);
 
 
 #ifdef	__cplusplus

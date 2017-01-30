@@ -1,6 +1,7 @@
 
 
 #include <xc.h>
+#include "main.h"
 #include "i2c.h"
 #include "flash.h"
  
@@ -15,22 +16,14 @@ void i2cInit() {
   SSP1MSK = 0xe7; // matches addr 4 and/or 8
   SSP1ADD = 0x18; // all but 4 and 8 must be zero
   
-  SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
-  SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
-  SSP1CON1bits.WCOL  =  0;   // clr flag to allow bytes to be received
-//  SSP1CON1 = 0b10110110;
+//  SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
+//  SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
+  SSP1CON1 = 0b00010110;       // SSPEN not set until end
   
-  SSP1CON2bits.SEN   =  1;   // Stretch Enable
-  SSP1CON2bits.GCEN  =  0;   // General Call Enable 
-//  SSP1CON2 = 0b00000001;
+//  SSP1CON2bits.SEN   =  1;   // Stretch Enable
+  SSP1CON2 = 0b00000001;
 
-  SSP1CON3bits.SCIE  =  0;   // Start Condition Interrupt Enable 
-  SSP1CON3bits.PCIE  =  0;   // Stop Condition Interrupt Enable 
-  SSP1CON3bits.BOEN  =  0;   // Buffer Overwrite Detect Enable
-  SSP1CON3bits.SBCDE =  0;   // Bus Collision Detect Enable
-  SSP1CON3bits.AHEN  =  0;   // Address Hold Enable for software ack/nak
-  SSP1CON3bits.DHEN  =  0;   // Data Hold Enable for software ack/nak
-//  SSP1CON3 = 0b00010100;
+  SSP1CON3 = 0;
 
   SSP1IF = 0; // clear I2C int flag, is used without interrupts
   SSP1IE = 0;   /* Clear I2C Interrupt Enable, is used without interrupts. */
@@ -42,7 +35,7 @@ void i2cInit() {
 
 char i2cAddr; // two addresses (4 & 8) remove need for cmd byte
 char packetByteIdx; // 0-based idx for data bytes
-unsigned int wordAddr = APP_CODE_OFFSET;  // not wise to count on this default
+unsigned int wordAddr = NEW_RESET_VECTOR;  // not wise to count on this default
 char buf[WRITE_FLASH_BLOCKSIZE*2]; // erase and data commands always 32 words
 
 void doWriteAction(char dataByte) {

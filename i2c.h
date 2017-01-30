@@ -16,8 +16,6 @@ extern "C" {
 #define ERASE_FLASH_BLOCKSIZE 32 /* words */
 #define WRITE_FLASH_BLOCKSIZE 32 /* words */
 
-#define APP_CODE_OFFSET 0x200
-
 void i2cInit();
 void chkI2c();
 

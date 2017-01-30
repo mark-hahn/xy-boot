@@ -42,12 +42,13 @@
 #define _str(x)  #x
 #define str(x)  _str(x)
 
-void interrupt service_isr() {
+void interrupt main_isr() { // redirect 0x0004 int to 0x0204
     asm ("pagesel  " str (NEW_INTERRUPT_VECTOR));
     asm ("goto   "   str (NEW_INTERRUPT_VECTOR));
-}
+}     
 
 void main(void) {
+  // after first app load, to re-flash, the app must first erase 0x200
   if(haveApp()) {   // jump to app
     STKPTR = 0x1F;
     asm ("pagesel " str(NEW_RESET_VECTOR));
@@ -57,3 +58,12 @@ void main(void) {
   i2cInit();
   while(1) chkI2c();
 }
+
+/*
+ // sample app code to re-enter boot loader
+    GIE = 0; 
+    flash_memory_erase(NEW_RESET_VECTOR);
+    STKPTR = 0x1F;             // could do reset() here instead
+    asm ("pagesel " str(0));
+    asm ("goto  "  str(0));
+ */
