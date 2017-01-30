@@ -12,22 +12,32 @@ void i2cInit() {
   RC3PPS     = 0x15; // SCL => RC3 out
   RC4PPS     = 0x16; // SDA => RC4 out
 
-  SSP1MSKbits.SSPMSK = 0xe7; // matches addr 4 and/or 8
-  SSP1ADDbits.SSPADD =  0;   // allow any combination of addr 8 & 16
+  SSP1MSK = 0xe7; // matches addr 4 and/or 8
+  SSP1ADD = 0x18; // all but 4 and 8 must be zero
+  
   SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
-  SSP1CON1bits.WCOL  =  1;   // Write Collision detect
   SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
-  SSP1CON1bits.SSPEN =  1;   // Serial Port Enable bit
+  SSP1CON1bits.WCOL  =  0;   // clr flag to allow bytes to be received
+//  SSP1CON1 = 0b10110110;
+  
   SSP1CON2bits.SEN   =  1;   // Stretch Enable
   SSP1CON2bits.GCEN  =  0;   // General Call Enable 
+//  SSP1CON2 = 0b00000001;
+
   SSP1CON3bits.SCIE  =  0;   // Start Condition Interrupt Enable 
   SSP1CON3bits.PCIE  =  0;   // Stop Condition Interrupt Enable 
-  SSP1CON3bits.BOEN  =  1;   // Buffer Overwrite Detect Enable
-  SSP1CON3bits.SBCDE =  1;   // Bus Collision Detect Enable
+  SSP1CON3bits.BOEN  =  0;   // Buffer Overwrite Detect Enable
+  SSP1CON3bits.SBCDE =  0;   // Bus Collision Detect Enable
   SSP1CON3bits.AHEN  =  0;   // Address Hold Enable for software ack/nak
   SSP1CON3bits.DHEN  =  0;   // Data Hold Enable for software ack/nak
+//  SSP1CON3 = 0b00010100;
+
+  SSP1IF = 0; // clear I2C int flag, is used without interrupts
+  SSP1IE = 0;   /* Clear I2C Interrupt Enable, is used without interrupts. */
+  BCL1IE = 0;   /* Make sure Bus Collision Interrupt Enable is off. */
+  BCL1IF = 0;   /* Clear I2C Bus Collision Interrupt Flag. */
   
-  SSP1IF =  0; // clear I2C int flag, is used without interrupts
+  SSP1CON1bits.SSPEN =  1;   // Serial Port Enable bit
 }
 
 char i2cAddr; // two addresses (4 & 8) remove need for cmd byte
@@ -57,24 +67,26 @@ void doReadAction() {
 }
 
 void chkI2c() {
-  if(!SSP1IF) return;
+      if (BCL1IF)            /* Check if Bus Collision have been detected. */
+        BCL1IF = 0;         /* Clear the flag. */
+
+  if(!SSP1IF) return;  // int flag used without interrupts
   SSP1IF = 0;  
+
+  SSP1CON1bits.WCOL = 0;
   
   if (!SSP1STATbits.D_nA) { // Address char
-    SSP1CON1bits.WCOL = 0;
     packetByteIdx = 0;
     i2cAddr = SSP1BUF >> 1;
     
     if(SSP1STATbits.R_nW) { // read type packet
-      doReadAction();       // do erase or flash
+      doReadAction();       // do actual erase or flash
       SSP1BUF = 0;          // single dummy byte
-      SSP1CON1bits.CKP = 1; // Release clock to stop stretching
     }
   }
   else { // Data char, always an i2c write, either set addr or do actual flash
-    SSP1CON1bits.WCOL = 0;
     doWriteAction(SSP1BUF);  
     packetByteIdx++;
-    SSP1CON1bits.CKP = 1; // Release clock to stop stretching
   }
+  SSP1CON1bits.CKP = 1; // Release clock to stop stretching
 }

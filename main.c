@@ -34,10 +34,10 @@
 #define _XTAL_FREQ 32000000  
 
 #include <xc.h>
+#include "main.h"
 #include "i2c.h"
+#include "flash.h"
 
-#define  NEW_RESET_VECTOR     0x200
-#define  NEW_INTERRUPT_VECTOR 0x204
 
 #define _str(x)  #x
 #define str(x)  _str(x)
@@ -48,19 +48,12 @@ void interrupt service_isr() {
 }
 
 void main(void) {
-  NVMADRH = NEW_RESET_VECTOR >> 8;
-  NVMADRL = 0;  // (NEW_RESET_VECTOR & 0xff) gives constant overflow ???
-  NVMCON1 = 0x80;
-  NVMCON1bits.RD = 1;
-  if((NVMDATH << 8 | NVMDATL) != 0x3FFF) {
-    // jump to app
+  if(haveApp()) {   // jump to app
     STKPTR = 0x1F;
     asm ("pagesel " str(NEW_RESET_VECTOR));
     asm ("goto  "  str(NEW_RESET_VECTOR));
   }
-  
   //  run bootloader
-  GIE = 0; // disable global Interrupt 
   i2cInit();
   while(1) chkI2c();
 }

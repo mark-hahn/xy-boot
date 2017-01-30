@@ -1,11 +1,18 @@
 
 #include <xc.h>
 #include "flash.h"
+#include "main.h"
 #include "i2c.h"
 
 #define _str(x)  #x
 #define str(x)  _str(x)
 
+char haveApp() {
+  NVMADRH = NEW_RESET_VECTOR >> 8;
+  NVMADRL = 0;  // (NEW_RESET_VECTOR & 0xff) gives constant overflow ???
+  NVMCON1 = 1;  // set RD bit and clear other write stuff
+  return ((NVMDATH << 8 | NVMDATL) != 0x3FFF);
+}
 //   -- not used -- and not tested
 //unsigned int flash_memory_read (unsigned int address) {
 //	NVMADRL=((address)&0xff);
