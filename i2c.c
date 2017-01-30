@@ -3,7 +3,7 @@
 #include <xc.h>
 #include "i2c.h"
 #include "flash.h"
-
+ 
 // note that there is NO error checking to make code small
 
 void i2cInit() {
@@ -13,19 +13,19 @@ void i2cInit() {
   RC4PPS     = 0x16; // SDA => RC4 out
 
   SSP1MSKbits.SSPMSK = 0xe7; // matches addr 4 and/or 8
-  SSP1ADDbits.SSPADD =  0; // allow any combination of addr 8 & 16
-  SSP1CON1bits.SSPM  =  6; // I2C Slave, 7-bit address
-  SSP1CON1bits.WCOL  =  1; // Write Collision detect
-  SSP1CON1bits.CKP   =  1; // Zero holds clock low (clock stretch)
-  SSP1CON1bits.SSPEN =  1; // Serial Port Enable bit
-  SSP1CON2bits.SEN   =  1; // Stretch Enable
-  SSP1CON2bits.GCEN  =  0; // General Call Enable 
-  SSP1CON3bits.SCIE  =  0; // Start Condition Interrupt Enable 
-  SSP1CON3bits.PCIE  =  0; // Stop Condition Interrupt Enable 
-  SSP1CON3bits.BOEN  =  0; // Buffer Overwrite Detect Enable
-  SSP1CON3bits.SBCDE =  0; // Bus Collision Detect Enable
-  SSP1CON3bits.AHEN  =  0; // Address Hold Enable for software ack/nak
-  SSP1CON3bits.DHEN  =  0; // Data Hold Enable for software ack/nak
+  SSP1ADDbits.SSPADD =  0;   // allow any combination of addr 8 & 16
+  SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
+  SSP1CON1bits.WCOL  =  1;   // Write Collision detect
+  SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
+  SSP1CON1bits.SSPEN =  1;   // Serial Port Enable bit
+  SSP1CON2bits.SEN   =  1;   // Stretch Enable
+  SSP1CON2bits.GCEN  =  0;   // General Call Enable 
+  SSP1CON3bits.SCIE  =  0;   // Start Condition Interrupt Enable 
+  SSP1CON3bits.PCIE  =  0;   // Stop Condition Interrupt Enable 
+  SSP1CON3bits.BOEN  =  1;   // Buffer Overwrite Detect Enable
+  SSP1CON3bits.SBCDE =  1;   // Bus Collision Detect Enable
+  SSP1CON3bits.AHEN  =  0;   // Address Hold Enable for software ack/nak
+  SSP1CON3bits.DHEN  =  0;   // Data Hold Enable for software ack/nak
   
   SSP1IF =  0; // clear I2C int flag, is used without interrupts
 }

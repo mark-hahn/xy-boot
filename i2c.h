@@ -4,6 +4,7 @@
 extern "C" {
 #endif
   
+// addresses do not include rw bit so they range from 1 up
 #define addrI2cWriteAddr 4 /* i2c addr for write that sets 
                                word addr for erase and flash writes.
                                word addr of 0xffff triggers reset */
