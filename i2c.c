@@ -84,7 +84,7 @@ void chkI2c() {
       SSP1BUF = 0;          // single dummy byte
     }
   }
-  else { // Data char, always an i2c write, either set addr or do actual flash
+  else { // Data char, always an i2c write
     doWriteAction(SSP1BUF);  
     packetByteIdx++;
   }
