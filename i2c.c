@@ -12,24 +12,16 @@ void i2cInit() {
   SSP1DATPPS = 0x14; // RC4 => SDA in
   RC3PPS     = 0x15; // SCL => RC3 out
   RC4PPS     = 0x16; // SDA => RC4 out
-  
-  SSP1MSK = 0b11111100;       // matches addresses 10 and 11
+  ANSELC = 0;           // Enable Digital Input buffers
+  SSP1MSK = 0b11111100; // matches addresses 10 and 11
   SSP1ADD = 0b00010100;       
-  
-//  SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
-//  SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
+// I2C Slave, 7-bit address
+// Zero holds clock low (clock stretch)
   SSP1CON1 = 0b00010110;       // SSPEN not set until end
-  
 //  SSP1CON2bits.SEN   =  1;   // Stretch Enable
   SSP1CON2 = 0b00000001;
-
   SSP1CON3 = 0;
-
   SSP1IF = 0; // clear I2C int flag, is used without interrupts
-  SSP1IE = 0;   /* Clear I2C Interrupt Enable, is used without interrupts. */
-  BCL1IE = 0;   /* Make sure Bus Collision Interrupt Enable is off. */
-  BCL1IF = 0;   /* Clear I2C Bus Collision Interrupt Flag. */
-  
   SSP1CON1bits.SSPEN =  1;   // Serial Port Enable bit
 }
 
@@ -60,14 +52,9 @@ void doReadAction() {
 }
 
 void chkI2c() {
-  if (BCL1IF)           /* Check if Bus Collision have been detected. */
-    BCL1IF = 0;         /* Clear the flag. */
-
   if(!SSP1IF) return;  // int flag used without interrupts
   SSP1IF = 0;  
-
   SSP1CON1bits.WCOL = 0;
-  
   if (!SSP1STATbits.D_nA) { // Address char
     packetByteIdx = 0;
     i2cAddr = SSP1BUF >> 1;
