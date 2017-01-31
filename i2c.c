@@ -12,9 +12,9 @@ void i2cInit() {
   SSP1DATPPS = 0x14; // RC4 => SDA in
   RC3PPS     = 0x15; // SCL => RC3 out
   RC4PPS     = 0x16; // SDA => RC4 out
-
-  SSP1MSK = 0xe7; // matches addr 4 and/or 8
-  SSP1ADD = 0x18; // all but 4 and 8 must be zero
+  
+  SSP1MSK = 0b11111100;       // matches addresses 10 and 11
+  SSP1ADD = 0b00010100;       
   
 //  SSP1CON1bits.SSPM  =  6;   // I2C Slave, 7-bit address
 //  SSP1CON1bits.CKP   =  1;   // Zero holds clock low (clock stretch)
@@ -33,7 +33,7 @@ void i2cInit() {
   SSP1CON1bits.SSPEN =  1;   // Serial Port Enable bit
 }
 
-char i2cAddr; // two addresses (4 & 8) remove need for cmd byte
+char i2cAddr; // two addresses (10 and 11) remove need for cmd byte
 char packetByteIdx; // 0-based idx for data bytes
 unsigned int wordAddr = NEW_RESET_VECTOR;  // not wise to count on this default
 char buf[WRITE_FLASH_BLOCKSIZE*2]; // erase and data commands always 32 words
@@ -60,8 +60,8 @@ void doReadAction() {
 }
 
 void chkI2c() {
-      if (BCL1IF)            /* Check if Bus Collision have been detected. */
-        BCL1IF = 0;         /* Clear the flag. */
+  if (BCL1IF)           /* Check if Bus Collision have been detected. */
+    BCL1IF = 0;         /* Clear the flag. */
 
   if(!SSP1IF) return;  // int flag used without interrupts
   SSP1IF = 0;  
