@@ -22,7 +22,7 @@
 #pragma config WDTCWS = WDTCWS_7  // WDT Window Select bits (window always open (100%); software control; keyed access not required)
 #pragma config WDTCCS = SC        // WDT input clock selector (Software Control)
 #pragma config BBSIZE = BB512     //  (512 char boot block size)
-#pragma config BBEN = ON          //  (Boot Block enabled)
+#pragma config BBEN = OFF          //  (Boot Block enabled)
 #pragma config SAFEN = OFF        //  (SAF disabled)
 #pragma config WRTAPP = OFF       //  (Application Block not write protected)
 #pragma config WRTB = OFF         //  (Boot Block not write protected)

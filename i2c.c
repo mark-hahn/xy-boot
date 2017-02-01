@@ -32,9 +32,10 @@ char buf[WRITE_FLASH_BLOCKSIZE*2]; // erase and data commands always 32 words
 
 void doWriteAction(char dataByte) {
   if(i2cAddr == addrI2cWriteAddr) {  // set word address command
-    if(packetByteIdx == 0) wordAddr = dataByte;  // address is big-endian
-    else {
-      wordAddr = wordAddr << 8 | dataByte;
+    if(packetByteIdx == 0)
+      wordAddr = dataByte;  // address is big-endian
+    else if(packetByteIdx == 1) {
+      wordAddr = (wordAddr << 8) | dataByte;
       if(wordAddr == 0xffff) RESET();  // magic word address resets mcu
     }
   }
@@ -46,9 +47,10 @@ void doReadAction() {
   if(i2cAddr == eraseI2cReadAddr)
     flash_memory_erase (wordAddr); // wordAddr not incremented
 
-  else  // flashI2cReadAddr
+  else { // flashI2cReadAddr
     flash_memory_write (wordAddr, buf);
     wordAddr += WRITE_FLASH_BLOCKSIZE;
+  }
 }
 
 void chkI2c() {
@@ -64,7 +66,7 @@ void chkI2c() {
       SSP1BUF = 0;          // single dummy byte
     }
   }
-  else { // Data char, always an i2c write
+  else if(!SSP1STATbits.R_nW) {  // write data byte
     doWriteAction(SSP1BUF);  
     packetByteIdx++;
   }

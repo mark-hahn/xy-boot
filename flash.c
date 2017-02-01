@@ -26,28 +26,39 @@ char haveApp() {
 //}	
 
 void flash_memory_erase (unsigned int wordAddress) {
-  NVMADRL = ((wordAddress)&0xff);
-  NVMADRH = ((wordAddress)>>8);
-  NVMCON1 = 0x94; 	// access FLASH memory, wren=1, FREE specifies erase 
-  NVMCON2 = 0x55;
-  NVMCON2 = 0xaa;
-  NVMCON1bits.WR = 1;       // Start the write
-  WREN = 0;					// disallow program/erase		
+//  NVMADRL = ((wordAddress)&0xff);
+//  NVMADRH = ((wordAddress)>>8);
+//  NVMCON1 = 0x94; 	// access FLASH memory, wren=1, FREE specifies erase 
+//  NVMCON2 = 0x55;
+//  NVMCON2 = 0xaa;
+//  NVMCON1bits.WR = 1;       // Start the write
+//  WREN = 0;					// disallow program/erase		
 }
 
-void flash_memory_write (unsigned int wordAddress, unsigned char *data ) {
+void flash_memory_write (unsigned int wordAddress, char *data ) {
   char wordIdx;
-  NVMCON1 = 0x24; // specify write, LWLO -> don't do it now
+  NVMCON1 = 0x24; // LWLO=1 => don't flash yet, WREN=1 => allow write
   for (wordIdx=0; wordIdx < WRITE_FLASH_BLOCKSIZE; wordIdx++)  {
     NVMADRL =((wordAddress)&0xff);	// load address low byte
     NVMADRH =((wordAddress)>>8);		// load word address high byte
-    if(wordIdx == WRITE_FLASH_BLOCKSIZE-1) LWLO = 0; // do actual flash this time
-    NVMDATH = data[wordIdx*2];  // big-endian
+    if(wordIdx == WRITE_FLASH_BLOCKSIZE-1) {
+      LWLO = 0; // do actual flash this time
+    }
     NVMDATL = data[wordIdx*2+1];
-    WREN = 1;					        // allow program/erase
-    NVMCON2 = 0x55;
-    NVMCON2 = 0xaa;
-    NVMCON1bits.WR = 1;       // Start the write
+    NVMDATH = data[wordIdx*2];  // big-endian data
+//    NVMCON2 = 0x55;
+//    NVMCON2 = 0xaa;
+//    WR = 1;       // Start the write
+//    NOP();
+//    NOP();
+    asm("BANKSEL NVMCON2");
+    asm("MOVLW 0x55");
+    asm("MOVWF NVMCON2");
+    asm("MOVLW 0xAA");
+    asm("MOVWF NVMCON2");
+    asm("BSF NVMCON1,1");
+    asm("NOP");
+    asm("NOP");
     wordAddress++;
   }	
   WREN = 0;					// disallow program/erase
